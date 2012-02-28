@@ -118,6 +118,7 @@ clean_exit = ->
       return process.exit 1 if err
       re = new RegExp "^#{require('os').hostname()}:#{process.pid}"
       workers = (n for n in workers when re.test n)
+      process.exit 0 if workers.length == 0
       redis.del workers.map (e)-> "resque:worker:#{e}"
       redis.del workers.map (e)-> "resque:worker:#{e}:started"
       redis.del workers.map (e)-> "resque:stat:failed:#{e}"
