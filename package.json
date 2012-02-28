@@ -1,0 +1,15 @@
+{
+  "author": "Philip Hofstetter",
+  "name": "resue-runner",
+  "description": "resque-runner",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "dependencies": {
+    "redis": ">=0.7.0"
+  },
+  "optionalDependencies": {
+    "hiredis": ">=0.1.13"
+  }
+}
