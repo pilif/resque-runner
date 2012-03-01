@@ -122,6 +122,7 @@ clean_exit = ->
       redis.del workers.map (e)-> "resque:worker:#{e}"
       redis.del workers.map (e)-> "resque:worker:#{e}:started"
       redis.del workers.map (e)-> "resque:stat:failed:#{e}"
+      redis.del workers.map (e)-> "resque:stat:processed:#{e}"
       redis.srem "resque:workers", workers, (err, res)->
         process.exit 0
 
