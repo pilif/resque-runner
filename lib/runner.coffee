@@ -167,6 +167,6 @@ popper = (queue) ->
           worker.fail job, response
         new_popper queue
 
-popper(q) for q of cfg.runners
-
-process.on("SIG#{sig}", clean_exit) for sig in ['INT', 'HUP', 'TERM']
+exports.run = ->
+  popper(q) for q of cfg.runners
+  process.on("SIG#{sig}", clean_exit) for sig in ['INT', 'HUP', 'TERM']

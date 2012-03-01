@@ -1,13 +1,17 @@
 {
   "author": "Philip Hofstetter",
-  "name": "resue-runner",
+  "name": "resque-runner",
   "description": "resque-runner",
   "version": "0.0.1",
   "engines": {
     "node": ">=0.6.0"
   },
   "dependencies": {
-    "redis": ">=0.7.0"
+    "redis": ">=0.7.0",
+    "coffee-script": ">=1.2.0"
+  },
+  "bin": {
+    "resque-runner": "./bin/resque-runner.js"
   },
   "optionalDependencies": {
     "hiredis": ">=0.1.13"
