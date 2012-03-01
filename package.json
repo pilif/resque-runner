@@ -1,7 +1,7 @@
 {
   "author": "Philip Hofstetter",
   "name": "resque-runner",
-  "description": "resque-runner",
+  "description": "A general purpose worker for resque. Shelling out to an arbitrary script and using blpop instead of polling",
   "version": "0.0.1",
   "engines": {
     "node": ">=0.6.0"
