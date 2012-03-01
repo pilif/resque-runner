@@ -1,14 +1,24 @@
 {
-  "author": "Philip Hofstetter",
+  "author": {
+    "name": "Philip Hofstetter",
+    "email": "resque-runner@pilif.me",
+    "url": "http://pilif.github.com"
+  },
   "name": "resque-runner",
   "description": "A general purpose worker for resque. Shelling out to an arbitrary script and using blpop instead of polling",
+  "homepage": "https://github.com/pilif/resque-runner",
+  "bugs": "https://github.com/pilif/resque-runner/issues",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/pilif/resque-runner.git"
+  },
   "version": "0.0.1",
   "engines": {
-    "node": ">=0.6.0"
+    "node": "0.6.0"
   },
   "dependencies": {
-    "redis": ">=0.7.0",
-    "coffee-script": ">=1.2.0"
+    "redis": "~0.7.0",
+    "coffee-script": "1.2.0"
   },
   "bin": {
     "resque-runner": "./bin/resque-runner.js"
