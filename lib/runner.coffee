@@ -58,7 +58,7 @@ class Worker
       name = @worker_name()
       redis.sadd 'resque:workers', name
       redis.set "resque:worker:#{name}:started", new Date().toISOString()
-      redis.quit
+      redis.quit()
 
   unregister: ->
     with_redis (redis) =>
@@ -66,7 +66,7 @@ class Worker
       redis.srem 'resque:workers', name
       redis.del "resque:worker:#{name}"
       redis.del "resque:worker:#{name}:started"
-      redis.quit
+      redis.quit()
 
   working_on: (data) ->
     with_redis (redis) =>
@@ -75,7 +75,7 @@ class Worker
         run_at: new Date().toISOString()
         payload: data
       redis.set "resque:worker:#{@worker_name()}", data
-      redis.quit
+      redis.quit()
 
   done: (redis, successful) ->
     name = @worker_name()
@@ -83,7 +83,7 @@ class Worker
     redis.incr "resque:stat:#{key}"
     redis.incr "resque:stat:#{key}:#{name}"
     redis.del "resque:worker:#{name}"
-    redis.quit
+    redis.quit()
 
   success: ->
     with_redis (redis) =>
@@ -109,7 +109,7 @@ class Worker
           exception: 'UnclassifiedRunnerError'
           error: response
       redis.lpush "resque:failed", JSON.stringify(rmerge error, einfo)
-      redis.quit
+      redis.quit()
 
 clean_exit = ->
   with_redis (redis) ->
@@ -124,6 +124,7 @@ clean_exit = ->
       redis.del workers.map (e)-> "resque:stat:failed:#{e}"
       redis.del workers.map (e)-> "resque:stat:processed:#{e}"
       redis.srem "resque:workers", workers, (err, res)->
+        redis.quit()
         process.exit 0
 
 popper = (queue) ->
@@ -139,9 +140,9 @@ popper = (queue) ->
         console.error "Popper-Error: #{reason}"
         return new_popper queue
 
+      redis.quit()
       waiters[queue] = false
       return bail(err) if err
-      redis.quit()
 
       job = {}
       try
