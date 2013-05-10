@@ -29,8 +29,24 @@ unless require('path').existsSync cfg.script
 redis = require 'redis'
 spawn = require('child_process').spawn
 
-waiters = {}
-run_counter = {}
+class PopperRegistration
+  constructor: (@queue) ->
+    @busy = {}
+
+  get_popper_id: ->
+    for i in [0..cfg.runners[@queue]-1]
+      unless @busy[i]
+        @busy[i] = true
+        return i
+    null
+
+  free: (id) ->
+    @busy[id] = false
+
+_registry = {}
+reg = (queue) ->
+  _registry[queue] ?= new PopperRegistration(queue)
+
 
 with_redis = (cb) ->
   c = redis.createClient cfg.redis.port, cfg.redis.server
@@ -47,11 +63,10 @@ new_popper = (queue) ->
     popper(queue)
 
 class Worker
-  constructor: (@queue) ->
-    @counter = run_counter[@queue]
+  constructor: (@queue, @id) ->
 
   worker_name: ->
-    [require('os').hostname(), "#{process.pid}-#{@counter}", @queue].join ":"
+    [require('os').hostname(), "#{process.pid}-#{@id}", @queue].join ":"
 
   register: ->
     with_redis (redis) =>
@@ -128,20 +143,21 @@ clean_exit = ->
         process.exit 0
 
 popper = (queue) ->
-  run_counter[queue] ?= 0
-  return if waiters[queue] or run_counter[queue] >= cfg.runners[queue]
+  registry = reg queue
+  popper_id = registry.get_popper_id()
+  return if popper_id is null
 
   with_redis (redis)->
-    waiters[queue] = true
-    worker = new Worker(queue)
+    worker = new Worker(queue, popper_id)
     worker.register()
     redis.blpop "resque:queue:#{queue}", 0, (err, res) ->
       bail = (reason)->
         console.error "Popper-Error: #{reason}"
+        worker.unregister()
+        registry.free popper_id
         return new_popper queue
 
       redis.quit()
-      waiters[queue] = false
       return bail(err) if err
 
       job = {}
@@ -151,8 +167,6 @@ popper = (queue) ->
         return bail "Parse Error: #{e}"
 
       worker.working_on job
-
-      run_counter[queue]++
       new_popper queue
 
       response = '';
@@ -162,11 +176,11 @@ popper = (queue) ->
       cat.stderr.on 'data', (d) ->
         response += d
       cat.on 'exit', (code) ->
-        run_counter[queue]--
         if code == 0
           worker.success()
         else
           worker.fail job, response
+        registry.free popper_id
         new_popper queue
 
 exports.run = ->
