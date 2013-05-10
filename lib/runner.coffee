@@ -1,6 +1,6 @@
 #!/usr/bin/env coffee
 
-cfgfile = process.argv[2]
+cfgfile = process.env['RR_CONFIG'] || process.argv[2]
 
 cfg =
   redis:
