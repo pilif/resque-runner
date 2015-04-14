@@ -1,4 +1,5 @@
 #!/usr/bin/env node
 
 require('coffee-script');
-require('../lib/runner').run()
+require('coffee-script/register');
+require('../lib/runner').run();

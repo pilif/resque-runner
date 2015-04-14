@@ -15,14 +15,16 @@ rmerge = (dst, src)->
     dst[k] = v
   dst
 
-if cfgfile and require('path').existsSync cfgfile
-  cfg = rmerge cfg, JSON.parse require('fs').readFileSync(cfgfile)
+fs = require 'fs'
+
+if cfgfile and fs.existsSync cfgfile
+  cfg = rmerge cfg, JSON.parse fs.readFileSync(cfgfile)
 
 unless cfg.script?
   console.error "No script configured to execute on job availability"
   process.exit 1
 
-unless require('path').existsSync cfg.script
+unless fs.existsSync cfg.script
   console.error "Script #{cfg.script} doesn't exist. Can't start"
   process.exit 1
 
@@ -172,7 +174,7 @@ popper = (queue) ->
       response = '';
       cat = spawn cfg.script, [queue]
       cat.stdin.write res[1]
-      cat.stdin.end();
+      cat.stdin.end()
       cat.stderr.on 'data', (d) ->
         response += d
       cat.on 'exit', (code) ->
