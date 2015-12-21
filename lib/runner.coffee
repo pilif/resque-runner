@@ -100,11 +100,11 @@ class Worker
     redis.incr "resque:stat:#{key}"
     redis.incr "resque:stat:#{key}:#{name}"
     redis.del "resque:worker:#{name}"
-    redis.quit()
 
   success: ->
     with_redis (redis) =>
       @done(redis, true)
+      redis.quit()
 
   fail: (job, response) ->
     with_redis (redis) =>
