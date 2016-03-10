@@ -108,7 +108,6 @@ class Worker
 
   register: =>
     name = @worker_name()
-    console.log ("Registering #{name} with resque:workers")
     @redis.sadd 'resque:workers', name
     @redis.set "resque:worker:#{name}:started", new Date().toISOString()
 
