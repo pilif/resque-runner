@@ -73,7 +73,6 @@ class Worker
     @redis.quit()
 
   wait_and_process: ()=>
-    fd = @redis?.stream?._handle?.fd
     @redis.blpop "resque:queue:#{@queue}", 0, (err, res) =>
       bail = (reason)->
         console.error "Worker-Error: #{reason}"
@@ -90,7 +89,7 @@ class Worker
       @working_on job
 
       response = '';
-      cat = spawn cfg.script, [@queue, fd, @id]
+      cat = spawn cfg.script, [@queue]
       cat.stdin.write res[1]
       cat.stdin.end()
       cat.stderr.on 'data', (d) ->
