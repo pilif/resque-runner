@@ -88,17 +88,20 @@ class Worker
 
       @working_on job
 
-      response = '';
+      stderr = '';
+      stdout = '';
       cat = spawn cfg.script, [@queue]
       cat.stdin.write res[1]
       cat.stdin.end()
       cat.stderr.on 'data', (d) ->
-        response += d
+        stderr += d
+      cat.stdout.on 'data', (d) ->
+        stdout += d
       cat.on 'exit', (code) =>
         if code == 0
           @success()
         else
-          @fail job, response
+          @fail job, stderr, stdout
 
         process.nextTick(@wait_and_process) if @running
 
@@ -132,7 +135,7 @@ class Worker
   success: =>
     @done(true)
 
-  fail: (job, response) =>
+  fail: (job, stderr, stdout) =>
     @done(false)
     name = @worker_name()
     error =
@@ -144,12 +147,13 @@ class Worker
 
     einfo = {}
     try
-      r = JSON.parse response
+      r = JSON.parse stderr
       einfo[k] = r[k] for k in ['exception', 'error', 'backtrace']
     catch e
       einfo =
         exception: 'UnclassifiedRunnerError'
-        error: response
+        error: stderr
+        stdout: stdout
     @redis.lpush "resque:failed", JSON.stringify(rmerge error, einfo)
 
 
